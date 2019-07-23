@@ -5,5 +5,7 @@
     
     <h1>{{post.title}}</h1>
     <p>{{post.body}}</p>
+    <p>Written by <a href="/singleuser?user={{post.owner_id}}">{{ post.owner.username }}</a></p>
+
                
 {% endblock %}
