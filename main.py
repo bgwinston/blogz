@@ -8,6 +8,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'blaze1287'
 
+#Setting classes for DB
 class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
@@ -29,24 +30,22 @@ class User(db.Model):
         self.username = username
         self.password = password
 
-@app.before_request
-def require_login():
-    allowed_routes = ['login', 'signup', 'index', 'allpost', 'blog', 'entry', 'my_blogs'] 
-    if request.endpoint not in allowed_routes and 'username' not in session:
-        return redirect('/login')
 
+#Displays all users of page with accounts in DB
 @app.route('/index')
 def index():
     users = User.query.all()
     return render_template('/index.html', users = users, title='All Users')
 
+#Displays all posts from all users in DB
 @app.route('/allpost')
 def allpost():
     posts = Blog.query.all()
     users = User.query.all()
     return render_template('allpost.html', users = users, posts=posts, title='All Posts')
 
-@app.route('/blog')
+#Displays blogs of username picked from index page and once a specific blog is picked takes you to that blogs page.  
+@app.route('/blog', methods=['GET'])
 def blog():
     blog_id = request.args.get('id')
     user_id = request.args.get('users')
@@ -58,6 +57,15 @@ def blog():
         post = Blog.query.get(blog_id)
         return render_template('entry.html', post=post, title='Blog Entry')
 
+
+#Setting routes that can be used without user login
+@app.before_request
+def require_login():
+    allowed_routes = ['login', 'signup', 'index', 'allpost', 'blog', 'entry', 'static','my_blogs'] 
+    if request.endpoint not in allowed_routes and 'username' not in session:
+        return redirect('/login')
+
+#Login function that verifies username, password, and if user inputs an existing user.
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     username = ""
@@ -86,6 +94,7 @@ def login():
 
     return render_template('login.html', username = username, username_error = username_error, password_error = password_error)
 
+#Sign up function for user to create a account
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
     username = ""
@@ -130,14 +139,14 @@ def signup():
 
     return render_template('signup.html', username = username, username_error = username_error, password_error = password_error, verify_error = verify_error)
 
+#logout function
 @app.route('/logout')
 def logout():
     del session['username']
     return redirect('/')
 
-
+#Adding a new post and verifying all information.
 @app.route('/newpost', methods=['POST', 'GET'])
-
 def new_post():
     if request.method == 'POST':
         blog_title = request.form['blog-title']
@@ -162,16 +171,22 @@ def new_post():
     
     return render_template('newpost.html', title='New Entry')
 
+#displays users blogs.
 @app.route('/singleuser', methods=['POST', 'GET'])
 def my_blogs():
-    if request.method == 'GET':
-        #asking for a username but there is no username when there is a viewer that hasn't signed in. How do I word this?
+    if request.method == 'GET' and 'username' in session:
+        username = []
         user = User.query.filter_by(username = session['username']).first()
         user_id = user.id
         allblogs = Blog.query.filter_by(owner_id = user_id).all()
         return render_template('singleuser.html', blogs = allblogs)
+    if not 'username' in session:
+        return render_template('singleuser.html')
 
-      
+
 
 if  __name__ == "__main__":
     app.run()
+
+    users = User.query.all()
+    #return render_template('/index.html', users = users, title='All Users')

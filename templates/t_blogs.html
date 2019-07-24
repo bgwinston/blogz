@@ -3,7 +3,7 @@
 
 {% block content %}
     
-    <h1>Blogs!</h1>
+    <h1>They're Blogs!</h1>
     {% if blogs|length == 0 %}
         <h3>No blog posts yet.</h3>
     {% else %}
@@ -12,7 +12,7 @@
 
     <a href="/blog?id={{blog.id}}"><h2>{{blog.title}}</h2></a>
     <p>{{blog.body}}</p>
-    <p>Written by <a href="/blog?users={{blog.owner_id}}">{{ blog.owner.username }}</a></p>
+    <p>Written by <a href="/theyre_blogs?users={{blog.owner_id}}">{{ blog.owner.username }}</a></p>
     <hr>            
 
     
