@@ -181,8 +181,11 @@ def my_blogs():
         allblogs = Blog.query.filter_by(owner_id = user_id).all()
         return render_template('singleuser.html', blogs = allblogs)
     if not 'username' in session:
-        return render_template('singleuser.html')
-
+        posts = Blog.query.all()
+        blog_id = request.args.get('id')
+        user_id = request.args.get('user')
+        posts = Blog.query.filter_by(owner_id=user_id)
+        return render_template('singleuser.html', blogs=posts, header="User Posts")
 
 
 if  __name__ == "__main__":
